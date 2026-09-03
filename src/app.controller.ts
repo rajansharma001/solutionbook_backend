@@ -18,4 +18,10 @@ export class AppController {
   getSettings() {
     return this.adminService.getSettings();
   }
+
+  @Get('health')
+  getHealth() {
+    return { status: 'ok', timestamp: new Date().toISOString() };
+  }
 }
+

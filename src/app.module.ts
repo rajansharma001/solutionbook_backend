@@ -9,6 +9,7 @@ import { CoursesModule } from './courses/courses.module';
 import { EnrollmentsModule } from './enrollments/enrollments.module';
 import { AdminModule } from './admin/admin.module';
 import { StudyMaterialsModule } from './study-materials/study-materials.module';
+import { KeepAliveService } from './common/services/keep-alive.service';
 
 @Module({
   imports: [
@@ -22,7 +23,7 @@ import { StudyMaterialsModule } from './study-materials/study-materials.module';
     StudyMaterialsModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, KeepAliveService],
 })
 export class AppModule {}
 
