@@ -1,0 +1,45 @@
+{
+  "siteName": "SolutionBook",
+  "contactEmail": "admin@solutionbook.com",
+  "contactPhone": "+977 9849809355",
+  "contactAddress": "Kohalpur, Banke",
+  "logoText": "SolutionBook",
+  "heroTitle": "Master Your Exams with Expert-Crafted Learning",
+  "heroSubtitle": "Join 15,000+ students who are acing BLE, SEE, NEB, and Loksewa exams through our interactive courses, practice quizzes, and AI-powered tutoring on SikshyaHub.",
+  "heroCtaText": "Explore Courses",
+  "heroCtaLink": "/courses",
+  "commTitle": "Join the Learning Community",
+  "commDescription": "Connect with thousands of students across Nepal. Discuss recent question papers, clear complex doubts, share exam preparation strategies, and prepare together.",
+  "commCtaText": "Join Discord Server",
+  "commCtaLink": "https://discord.gg/sikshyahub",
+  "commWhatsAppLink": "https://chat.whatsapp.com/sikshyahub",
+  "features": [
+    {
+      "title": "Syllabus Aligned",
+      "desc": "Every note, video, and quiz is strictly aligned with the latest CDC (Curriculum Development Centre) and Loksewa guidelines."
+    },
+    {
+      "title": "Gamified Practice",
+      "desc": "Earn points for completing quizzes accurately and quickly. Level up your profile and climb the national leaderboards."
+    },
+    {
+      "title": "AI Course Tutor",
+      "desc": "Stuck on a concept? Our AI tutor reads the specific course notes and explains it to you instantly, 24/7."
+    },
+    {
+      "title": "Past Paper Solutions",
+      "desc": "Access 10+ years of BLE, SEE, and NEB past board questions with detailed, step-by-step verified solutions."
+    },
+    {
+      "title": "Learn Anywhere",
+      "desc": "Fully responsive platform. Download PDF notes for offline reading or watch video lectures directly on your mobile."
+    },
+    {
+      "title": "Community Support",
+      "desc": "Join course-specific chat rooms to discuss questions with peers or direct message your instructors for clarification."
+    }
+  ],
+  "maintenanceMode": false,
+  "allowRegistrations": true,
+  "requireEmailVerification": true
+}

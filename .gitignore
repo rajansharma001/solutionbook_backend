@@ -1,0 +1,27 @@
+# Dependencies
+node_modules/
+
+# Production build outputs
+dist/
+
+# Uploaded media assets
+uploads/
+
+# Keep real environment secrets out of version control
+.env
+.env.*
+!.env.example
+
+# Prisma generated
+/generated/prisma/
+
+# Temporary / Scratch / Logs
+*.log
+npm-debug.log*
+scratch/
+test_output.txt
+login.json
+check*.*
+test-*.*
+test_*.*
+

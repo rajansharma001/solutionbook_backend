@@ -1,0 +1,333 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model User {
+  id                String             @id @default(uuid())
+  email             String             @unique
+  passwordHash      String
+  role              String             @default("STUDENT")
+  isEmailVerified   Boolean            @default(false)
+  isActive          Boolean            @default(true)
+  verificationToken String?
+  profileData       String?
+  name              String?
+  profileImage      String?
+  resetPasswordToken   String?
+  resetPasswordExpires DateTime?
+  
+  // Relations
+  studentProfile    StudentProfile?
+  instructorProfile InstructorProfile?
+  coursesTaught     Course[]           @relation("TeacherCourses")
+  enrollments       Enrollment[]
+  reviews           Review[]
+  certificates      Certificate[]
+  userProgress      UserProgress[]
+  submissions       AssignmentSubmission[] @relation("StudentSubmissions")
+
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+}
+
+model StudentProfile {
+  id            String   @id @default(uuid())
+  userId        String   @unique
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  totalXP       Int      @default(0)
+  learningHours Float    @default(0.0)
+  streak        Int      @default(0)
+  wishlist      String   @default("[]") // JSON array of course IDs
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model InstructorProfile {
+  id                String   @id @default(uuid())
+  userId            String   @unique
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  headline          String?
+  bio               String?
+  expertise         String?  // comma-separated or JSON
+  yearsOfExperience Int      @default(0)
+  totalStudents     Int      @default(0)
+  rating            Float    @default(0.0)
+
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}
+
+model Course {
+  id                 String       @id @default(uuid())
+  title              String
+  slug               String       @default("")
+  subtitle           String?
+  description        String
+  shortDescription   String?
+  
+  thumbnail          String?
+  bannerImage        String?
+  promoVideoUrl      String?
+
+  category           String       @default("General")
+  subCategory        String?
+  tags               String       @default("[]") // JSON array
+  
+  level              String       @default("BEGINNER") // BEGINNER/INTERMEDIATE/ADVANCED
+  language           String       @default("English")
+  
+  price              Float        @default(0) // 0 for free
+  discountPrice      Float?
+  currency           String       @default("USD")
+  isFree             Boolean      @default(false)
+  
+  teacherId          String
+  teacher            User         @relation("TeacherCourses", fields: [teacherId], references: [id], onDelete: Cascade)
+  coInstructorIds    String       @default("[]") // JSON array
+
+  duration           Int          @default(0) // in minutes
+  totalLessons       Int          @default(0)
+  totalTopics        Int          @default(0)
+
+  requirements       String       @default("[]") // JSON array
+  learningOutcomes   String       @default("[]") // JSON array
+  targetAudience     String       @default("[]") // JSON array
+
+  certificateEnabled Boolean      @default(true)
+  hasLifetimeAccess  Boolean      @default(true)
+
+  status             String       @default("DRAFT") // DRAFT/PUBLISHED/PRIVATE
+  isPublished        Boolean      @default(false)
+  isFeatured         Boolean      @default(false)
+  adminVerified      Boolean      @default(false)
+
+  seoTitle           String?
+  seoDescription     String?
+  seoKeywords        String?
+
+  enrollmentCount    Int          @default(0)
+  rating             Float        @default(0.0)
+  reviewCount        Int          @default(0)
+
+  createdAt          DateTime     @default(now())
+  updatedAt          DateTime     @updatedAt
+  publishedAt        DateTime?
+  
+  // Relations
+  modules            Module[]
+  lessons            Lesson[]
+  quizzes            Quiz[]
+  enrollments        Enrollment[]
+  reviews            Review[]
+  certificates       Certificate[]
+  userProgress       UserProgress[]
+}
+
+model Module {
+  id           String   @id @default(uuid())
+  courseId     String
+  course       Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  title        String
+  slug         String   @default("")
+  description  String?
+  thumbnail    String?
+  order        Int      @default(0)
+  isPreview    Boolean  @default(false)
+  totalLessons Int      @default(0)
+  duration     Int      @default(0) // in minutes
+
+  // Relations
+  lessons      Lesson[]
+
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Lesson {
+  id            String         @id @default(uuid())
+  courseId      String
+  course        Course         @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  topicId       String
+  topic         Module         @relation(fields: [topicId], references: [id], onDelete: Cascade)
+  title         String
+  slug          String         @default("")
+  description   String?
+  
+  lessonType    String         @default("VIDEO") // video/article/quiz/live/assignment
+  
+  videoUrl      String?
+  videoProvider String?        // youtube/vimeo/upload
+  videoDuration Int            @default(0)    // in seconds
+  
+  content       String?        // rich text/html/markdown
+  thumbnail     String?
+  attachments   String         @default("[]") // JSON array of attachment links
+  codeFiles     String         @default("[]") // JSON array
+  externalLinks String         @default("[]") // JSON array
+  
+  isFreePreview Boolean        @default(false)
+  isDownloadable Boolean       @default(true)
+  
+  order         Int            @default(0)
+  xpPoints      Int            @default(10)
+  estimatedTime Int            @default(10)   // in minutes
+  
+  isPublished   Boolean        @default(true)
+  
+  // Relations
+  quizzes       Quiz[]
+  assignments   Assignment[]
+  userProgress  UserProgress[]
+
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+}
+
+model Quiz {
+  id             String         @id @default(uuid())
+  lessonId       String?
+  lesson         Lesson?        @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  courseId       String
+  course         Course         @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  title          String         @default("Quiz")
+  description    String?
+  timeLimit      Int            @default(0)    // in minutes or seconds
+  passingScore   Int            @default(70)   // passing percentage
+  totalQuestions Int            @default(0)
+
+  // Relations
+  questions      QuizQuestion[]
+
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+}
+
+model QuizQuestion {
+  id            String   @id @default(uuid())
+  quizId        String
+  quiz          Quiz     @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  question      String
+  questionType  String   @default("MCQ") // mcq/truefalse/text
+  options       String   @default("[]")  // JSON array of options
+  correctAnswer String
+  explanation   String?
+  marks         Int      @default(1)
+  order         Int      @default(0)
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model Assignment {
+  id             String    @id @default(uuid())
+  lessonId       String
+  lesson         Lesson    @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  title          String
+  description    String?
+  submissionType String    @default("FILE") // file/link/text
+  maxMarks       Int       @default(100)
+  deadline       DateTime?
+
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  submissions    AssignmentSubmission[]
+}
+
+model UserProgress {
+  id                 String    @id @default(uuid())
+  userId             String
+  user               User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  courseId           String
+  course             Course    @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  lessonId           String
+  lesson             Lesson    @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  completed          Boolean   @default(false)
+  progressPercentage Float     @default(0.0)
+  lastWatchedTime    Int       @default(0)   // in seconds
+
+  completedAt        DateTime?
+  updatedAt          DateTime  @updatedAt
+}
+
+model Review {
+  id        String   @id @default(uuid())
+  courseId  String
+  course    Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  rating    Float
+  comment   String?
+
+  createdAt DateTime @default(now())
+}
+
+model Certificate {
+  id                String   @id @default(uuid())
+  userId            String
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  courseId          String
+  course            Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  certificateUrl    String
+  certificateNumber String   @unique
+  issuedAt          DateTime @default(now())
+}
+
+model Enrollment {
+  id            String    @id @default(uuid())
+  studentId     String
+  student       User      @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  courseId      String
+  course        Course    @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  progress      Float     @default(0.0) // percentage
+  completed     Boolean   @default(false)
+  paymentStatus String    @default("PENDING") // PENDING/PAID/REFUNDED
+  paymentMethod String?
+  amount        Float     @default(0.0)
+
+  enrolledAt    DateTime  @default(now())
+  expiresAt     DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@unique([studentId, courseId])
+}
+
+model StudyMaterial {
+  id            String   @id @default(uuid())
+  title         String
+  description   String?
+  fileUrl       String
+  category      String   // "NOTE" | "QUESTION_PAPER"
+  classLevel    String   // "Class 8" | "Class 10" | "NEB (+2)" | "Loksewa"
+  subject       String
+  downloadCount Int      @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model AssignmentSubmission {
+  id           String    @id @default(uuid())
+  fileUrl      String    // PDF link, doc URL, or text submission
+  marks        Int?      // Null until graded by instructor
+  feedback     String?   // Instructor's feedback text
+  status       String    @default("SUBMITTED") // SUBMITTED | GRADED | RESUBMISSION_REQUIRED
+  
+  studentId    String
+  student      User      @relation("StudentSubmissions", fields: [studentId], references: [id], onDelete: Cascade)
+  assignmentId String
+  assignment   Assignment @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+  
+  submittedAt  DateTime  @default(now())
+  gradedAt     DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  @@unique([studentId, assignmentId])
+}
+
