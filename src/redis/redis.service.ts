@@ -56,8 +56,7 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
       await this.client.ping();
       this.logger.log('Redis ping successful');
     } catch (error) {
-      this.logger.error(`Redis ping failed: ${(error as Error).message}`);
-      throw error;
+      this.logger.warn(`Redis ping failed: ${(error as Error).message}. Operating in fallback mode.`);
     }
   }
 
