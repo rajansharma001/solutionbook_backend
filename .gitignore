@@ -21,7 +21,10 @@ npm-debug.log*
 scratch/
 test_output.txt
 login.json
-check*.*
-test-*.*
-test_*.*
+# Root-level temporary test scripts
+/check*.*
+/test-*.*
+/test_*.*
+!src/
+
 
