@@ -33,6 +33,13 @@ export class StudyMaterialsController {
     });
   }
 
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('TEACHER', 'ADMIN')
+  @Get('teacher/my-materials')
+  getMyMaterials() {
+    return this.studyMaterialsService.findAll({});
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.studyMaterialsService.findOne(id);
@@ -44,14 +51,14 @@ export class StudyMaterialsController {
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles('ADMIN')
+  @Roles('ADMIN', 'TEACHER')
   @Post()
   create(@Body() dto: CreateStudyMaterialDto) {
     return this.studyMaterialsService.create(dto);
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles('ADMIN')
+  @Roles('ADMIN', 'TEACHER')
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.studyMaterialsService.remove(id);

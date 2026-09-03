@@ -31,6 +31,31 @@ export class CoursesService {
     });
   }
 
+  async findByTeacher(teacherId: string, page = 1, limit = 15) {
+    const skip = (page - 1) * limit;
+    const [courses, total] = await Promise.all([
+      this.prisma.course.findMany({
+        where: { teacherId },
+        include: {
+          teacher: { select: { id: true, email: true, profileData: true } },
+          _count: { select: { enrollments: true, modules: true } },
+        },
+        orderBy: { createdAt: 'desc' },
+        skip,
+        take: limit,
+      }),
+      this.prisma.course.count({ where: { teacherId } }),
+    ]);
+
+    return {
+      courses,
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit) || 1,
+    };
+  }
+
   async findOne(id: string) {
     const course = await this.prisma.course.findUnique({
       where: { id },

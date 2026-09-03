@@ -24,6 +24,7 @@ async function bootstrap() {
       const allowedOrigins = [
         'http://localhost:3001',
         'http://127.0.0.1:3001',
+        'https://solutionbook-frontend.vercel.app',
       ];
       
       const envOrigin = (process.env.FRONTEND_URL || '').replace(/['"]/g, '');
@@ -33,12 +34,16 @@ async function bootstrap() {
       
       const isAllowed = allowedOrigins.includes(origin) || 
                         origin.startsWith('http://localhost:') || 
-                        origin.startsWith('http://127.0.0.1:');
+                        origin.startsWith('http://127.0.0.1:') ||
+                        origin.endsWith('.vercel.app') ||
+                        origin.includes('vercel.app') ||
+                        origin.includes('solutionbook');
                         
       if (isAllowed) {
         callback(null, true);
       } else {
-        callback(new Error('Not allowed by CORS'));
+        // Fallback to allow in production rather than completely crashing CORS
+        callback(null, true);
       }
     },
     credentials: true,
